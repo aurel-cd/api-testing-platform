@@ -1,0 +1,74 @@
+services:
+  postman_frontend:
+    build:
+      context: ../frontend
+      dockerfile: ../frontend/Dockerfile
+    volumes:
+      - ../frontend:/var/www/html
+      - /var/www/html/node_modules
+    networks:
+      - postman_network
+    ports:
+      - "50000:5173"
+  postman_backend:
+    build:
+      context: ../backend
+      dockerfile: ../backend/Dockerfile
+    depends_on:
+      postgres_postman:
+        condition: service_healthy
+    volumes:
+      - ../backend:/var/www/html
+    ports:
+      - "8888:8888"
+    environment:
+      APP_PORT: ${APP_PORT}
+    networks:
+      - postman_network
+  postgres_postman:
+    image: "postgres:16.4-alpine"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "55444:5432"
+    volumes:
+      - pg_sql_db_data:/var/lib/postgresql/data
+    networks:
+      - postman_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  postgres_postman_testing:
+    image: "postgres:16.4-alpine"
+    environment:
+      POSTGRES_USER: ${DB_TEST_USER}
+      POSTGRES_PASSWORD: ${DB_TEST_PASSWORD}
+      POSTGRES_DB: ${DB_TEST_DATABASE}
+    ports:
+      - "55445:5432"
+    volumes:
+      - pg_sql_test_db_data:/var/lib/postgresql/data
+    networks:
+      - postman_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_TEST_USER}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: 'redis:alpine'
+    ports:
+      - "53379:6379"
+    environment:
+      - SHELL=/bin/bash
+    networks:
+      - postman_network
+volumes:
+  pg_sql_db_data:
+  pg_sql_test_db_data:
+networks:
+  postman_network:
