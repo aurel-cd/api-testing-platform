@@ -9,12 +9,12 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 
-Route::group([], function (){
-
-});
+Route::get('/test', function (){
+    dd(2);
+})->middleware('auth');
 
 Route::prefix('auth')->name('auth.')->group(function(){
    Route::post('login', [AuthController::class, 'login'])->name('login');
    Route::post('register', [AuthController::class, 'register'])->name('register');
-   Route::post('verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email')->middleware(["auth"]);
+   Route::post('verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email')->middleware(["auth", "auth:sanctum"]);
 });

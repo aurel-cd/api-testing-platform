@@ -2,7 +2,7 @@
 
 namespace App\Services\Auth;
 
-use App\Models\PersonalAccessToken;
+use App\Models\UserPersonalAccessToken;
 use App\Models\User;
 use App\Utils\AuthVariable;
 use Carbon\Carbon;
@@ -14,15 +14,14 @@ class AuthService
         $minutesToExpire = $isRememberMe ? AuthVariable::getRememberMeAccessTokenExpiration() : AuthVariable::getAccessTokenExpiration();
         $expiresAt = Carbon::now()->addMinutes($minutesToExpire);
         $accessToken = $user->createToken('api_token', [], $expiresAt)->plainTextToken;
-        $accessTokenId = (int) explode('|', $accessToken)[0];
+        $accessTokenId = explode('|', $accessToken)[0];
 
         $refreshTokenExpireAfter =  $isRememberMe ? AuthVariable::getRememberMeRefreshTokenExpiration() : AuthVariable::getRefreshTokenExpiration();
         $refreshTokenExpiresAt = Carbon::now()->addMinutes($refreshTokenExpireAfter);
         $refreshToken = $user->createToken('api_token', [], $refreshTokenExpiresAt)->plainTextToken;
-        $refreshTokenId = (int) explode('|', $refreshToken)[0];
-
-        $personalAccessToken = PersonalAccessToken::query()->find($refreshTokenId);
-        $personalAccessToken->related_access_token_id = $accessTokenId;
+        $refreshTokenId = explode('|', $refreshToken)[0];
+        $personalAccessToken = UserPersonalAccessToken::query()->find($refreshTokenId);
+        $personalAccessToken->related_token_id = $accessTokenId;
         $personalAccessToken->save();
 
         return [
