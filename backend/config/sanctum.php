@@ -51,8 +51,8 @@ return [
 
     'access_token_expiration' => env('SANCTUM_ACCESS_TOKEN_EXPIRATION', 30),
     'remember_access_token_expiration' => env('SANCTUM_REMEMBER_ACCESS_TOKEN_EXPIRATION', 60 * 24),
-    'refresh_token_expiration_after' => env('SANCTUM_REFRESH_TOKEN_EXPIRATION_AFTER', 30),
-    'remember_refresh_token_expiration_after' => env('SANCTUM_REMEMBER_REFRESH_TOKEN_EXPIRATION_AFTER', 60 * 12),
+    'refresh_token_expiration' => env('SANCTUM_REFRESH_TOKEN_EXPIRATION', 30),
+    'remember_refresh_token_expiration' => env('SANCTUM_REMEMBER_REFRESH_TOKEN_EXPIRATION', 60 * 12),
 
 
     /*
