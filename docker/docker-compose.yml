@@ -19,6 +19,7 @@ services:
         condition: service_healthy
     volumes:
       - ../backend:/var/www/html
+      - /var/www/html/vendor
     ports:
       - "8888:8888"
     environment:
