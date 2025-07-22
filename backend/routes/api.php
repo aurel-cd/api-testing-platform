@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
 
 
 Route::get('/test', function (){
-    dd(2);
+    return 'AUTHENTICATED';
 })->middleware('auth');
 
 Route::prefix('auth')->name('auth.')->group(function(){

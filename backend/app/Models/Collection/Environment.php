@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $id
  * @property string $name
  * @property string $description
- * @property string $user_id
+ * @property string $user_ids
  * @property User $user
  * @property string $workspace_id
  * @property boolean $is_active
