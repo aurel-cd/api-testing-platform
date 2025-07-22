@@ -15,7 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            "auth" => AuthMiddleware::class,
             "must_be_active" => MustBeActive::class
         ]);
     })

@@ -2,7 +2,7 @@
 
 namespace App\Services\User;
 
-use App\Models\User;
+use App\Models\User\User;
 
 class UserCreateService
 {
