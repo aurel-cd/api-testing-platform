@@ -3,8 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RegisterRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\Auth\AuthService;
+use App\Services\User\UserCreateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -17,16 +21,15 @@ class AuthController extends Controller
     {
     }
 
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $loginRequest): JsonResponse
     {
-        $email = $request->email;
-        $password = $request->password;
-        $user = User::query()->where('email', $email)->first();
-        if ($user &&  Hash::check($password, $user->password)) {
+        $input = $loginRequest->validated();
+        $user = User::query()->where('email', $input["email"])->first();
+        if ($user && Hash::check($input["password"], $user->password)) {
             $tokens = $this->authService->createTokens($user);
 
             return response()->json([
-                'user' => $user->toArray(),
+                'user' => new UserResource($user),
                 ...$tokens
             ]);
         }
@@ -35,12 +38,16 @@ class AuthController extends Controller
         ], 422);
     }
 
-    public function register(Request $request)
+    public function register(RegisterRequest $registerRequest): JsonResponse
     {
-        $data = $request->all();
-        User::query()->create($data);
-        $user = User::query()->where('email', $data["email"])->first();
-        dd($user);
+        $registerUserData = $registerRequest->validated();
+        $userCreateService = new UserCreateService();
+        $newUser = $userCreateService->create($registerUserData);
+
+        return response()->json([
+            'user' => new UserResource($newUser),
+            'message' => __('The registration was successful!')
+        ]);
     }
 
     public function verifyEmail(Request $request)
