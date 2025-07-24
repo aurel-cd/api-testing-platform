@@ -6,6 +6,7 @@ use App\Models\User\User;
 use App\Models\User\UserPersonalAccessToken;
 use App\Utils\AuthVariable;
 use Carbon\Carbon;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthService
 {
@@ -41,5 +42,16 @@ class AuthService
             "refresh_token" => $refreshToken,
             "refresh_token_expires_at" => $refreshTokenExpiresAt->timestamp,
         ];
+    }
+
+    public function deleteTokens(User $user): void
+    {
+        $token = $user->currentAccessToken();
+        if($token instanceof PersonalAccessToken) {
+            UserPersonalAccessToken::query()
+                ->where('id', $token->id)
+                ->orWhere('related_token_id', $token->id)
+                ->delete();
+        }
     }
 }

@@ -25,4 +25,5 @@ Route::middleware('auth:sanctum')->group(function (){
     /**
      * Here go the protected routes
      */
+    Route::post('/auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
 });

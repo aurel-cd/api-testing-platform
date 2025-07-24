@@ -11,7 +11,9 @@ use App\Models\User\UserPersonalAccessToken;
 use App\Services\Auth\AuthService;
 use App\Services\User\UserCreateService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Sanctum\PersonalAccessToken;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
@@ -22,6 +24,11 @@ class AuthController extends Controller
     {
     }
 
+    /**
+     * Authentication
+     * @param LoginRequest $loginRequest
+     * @return JsonResponse
+     */
     public function login(LoginRequest $loginRequest): JsonResponse
     {
         $input = $loginRequest->validated();
@@ -39,6 +46,11 @@ class AuthController extends Controller
         ], Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
+    /**
+     * Register into the platform
+     * @param RegisterRequest $registerRequest
+     * @return JsonResponse
+     */
     public function register(RegisterRequest $registerRequest): JsonResponse
     {
         $registerUserData = $registerRequest->validated();
@@ -54,6 +66,10 @@ class AuthController extends Controller
         ], Response::HTTP_OK);
     }
 
+    /**
+     * Get authenticated user
+     * @return JsonResponse
+     */
     public function user(): JsonResponse
     {
         /**
@@ -66,6 +82,10 @@ class AuthController extends Controller
         return response()->json(['user' => new UserResource($user)], Response::HTTP_OK);
     }
 
+    /**
+     * Refresh tokens without logging out the user when he logged in using remember me option
+     * @return JsonResponse
+     */
     public function refreshTokens(): JsonResponse
     {
         /**
@@ -79,5 +99,16 @@ class AuthController extends Controller
             ->delete();
 
         return response()->json($tokens, Response::HTTP_OK);
+    }
+
+    /**
+     * Delete tokens for the user
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        $this->authService->deleteTokens($request->user());
+        return response()->json(["message" => __('Logged out!')], Response::HTTP_OK);
     }
 }
