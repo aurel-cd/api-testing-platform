@@ -15,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            "must_be_active" => MustBeActive::class
+            "auth" => AuthMiddleware::class,
+            "must_be_active" => MustBeActive::class,
+            "ability" => \Laravel\Sanctum\Http\Middleware\CheckForAnyAbility::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -11,7 +11,6 @@ use App\Models\User\UserPersonalAccessToken;
 use App\Services\Auth\AuthService;
 use App\Services\User\UserCreateService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Symfony\Component\HttpFoundation\Response;
 
