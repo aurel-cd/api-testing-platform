@@ -18,11 +18,22 @@ class AuthService
 
         $refreshTokenExpireAfter =  $isRememberMe ? AuthVariable::getRememberMeRefreshTokenExpiration() : AuthVariable::getRefreshTokenExpiration();
         $refreshTokenExpiresAt = Carbon::now()->addMinutes($refreshTokenExpireAfter);
-        $refreshToken = $user->createToken('api_token', [], $refreshTokenExpiresAt)->plainTextToken;
+        $refreshToken = $user->createToken('refresh_token', [], $refreshTokenExpiresAt)->plainTextToken;
         $refreshTokenId = explode('|', $refreshToken)[0];
         $personalAccessToken = UserPersonalAccessToken::query()->find($refreshTokenId);
         $personalAccessToken->related_token_id = $accessTokenId;
         $personalAccessToken->save();
+
+        $updateTokens = [];
+        if($isRememberMe){
+            $updateTokens['is_remember_me'] = true;
+        }
+
+        if(!empty($updateTokens)){
+            UserPersonalAccessToken::query()
+                ->whereIn('id', [$accessTokenId, $refreshTokenId])
+                ->update($updateTokens);
+        }
 
         return [
             "access_token" => $accessToken,

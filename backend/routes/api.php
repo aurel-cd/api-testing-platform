@@ -16,5 +16,6 @@ Route::get('/test', function (){
 Route::prefix('auth')->name('auth.')->group(function(){
    Route::post('login', [AuthController::class, 'login'])->name('login');
    Route::post('register', [AuthController::class, 'register'])->name('register');
-   Route::post('verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email')->middleware(["auth", "auth:sanctum"]);
+//   Route::post('verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email')->middleware(["auth", "auth:sanctum"]);
+   Route::post('refresh-tokens', [AuthController::class, 'refreshTokens'])->name('refresh.tokens')->middleware(["auth", "auth:sanctum", "ability:refresh_token"]);
 });

@@ -7,11 +7,13 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Models\UserPersonalAccessToken;
 use App\Services\Auth\AuthService;
 use App\Services\User\UserCreateService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
@@ -26,7 +28,7 @@ class AuthController extends Controller
         $input = $loginRequest->validated();
         $user = User::query()->where('email', $input["email"])->first();
         if ($user && Hash::check($input["password"], $user->password)) {
-            $tokens = $this->authService->createTokens($user);
+            $tokens = $this->authService->createTokens($user, isRememberMe: (bool)$loginRequest->get('remember_me'));
 
             return response()->json([
                 'user' => new UserResource($user),
@@ -42,16 +44,29 @@ class AuthController extends Controller
     {
         $registerUserData = $registerRequest->validated();
         $userCreateService = new UserCreateService();
+        $registerUserData = [...$registerUserData, ['password' => Hash::make($registerUserData['password'])]];
         $newUser = $userCreateService->create($registerUserData);
+        $tokens = $this->authService->createTokens($newUser);
 
         return response()->json([
             'user' => new UserResource($newUser),
+            ...$tokens,
             'message' => __('The registration was successful!')
-        ]);
+        ], Response::HTTP_OK);
     }
 
-    public function verifyEmail(Request $request)
+    public function refreshTokens(): JsonResponse
     {
+        /**
+         * @var User $user
+         */
+        $user = auth()->user();
+        $currentRefreshToken = $user->currentAccessToken();
+        $tokens = $this->authService->createTokens($user, isRememberMe: $currentRefreshToken->is_remember_me);
+        UserPersonalAccessToken::query()
+            ->whereIn('id', [$currentRefreshToken->id, $currentRefreshToken->related_token_id])
+            ->delete();
 
+        return response()->json($tokens, Response::HTTP_OK);
     }
 }
