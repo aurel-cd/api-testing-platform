@@ -10,7 +10,7 @@ Route::get('/user', function (Request $request) {
 
 
 Route::get('/test', function (){
-    dd(2);
+    return 'AUTHENTICATED';
 })->middleware('auth');
 
 Route::prefix('auth')->name('auth.')->group(function(){
@@ -18,4 +18,11 @@ Route::prefix('auth')->name('auth.')->group(function(){
    Route::post('register', [AuthController::class, 'register'])->name('register');
 //   Route::post('verify-email', [AuthController::class, 'verifyEmail'])->name('verify-email')->middleware(["auth", "auth:sanctum"]);
    Route::post('refresh-tokens', [AuthController::class, 'refreshTokens'])->name('refresh.tokens')->middleware(["auth", "auth:sanctum", "ability:refresh_token"]);
+   Route::get('/user', [AuthController::class, 'user'])->name('user')->middleware("auth:sanctum");
+});
+
+Route::middleware('auth:sanctum')->group(function (){
+    /**
+     * Here go the protected routes
+     */
 });

@@ -2,8 +2,8 @@
 
 namespace App\Services\Auth;
 
-use App\Models\UserPersonalAccessToken;
-use App\Models\User;
+use App\Models\User\User;
+use App\Models\User\UserPersonalAccessToken;
 use App\Utils\AuthVariable;
 use Carbon\Carbon;
 
